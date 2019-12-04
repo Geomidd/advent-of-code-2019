@@ -73,8 +73,59 @@ def FindNounAndVerb(target):
         return 100 * noun + verb, [noun, verb]
 
 
+def GetWireInputs():
+  with open('wires.txt', 'r') as wireFile:
+    wires = wireFile.read().splitlines()
+    return [wire.split(',') for wire in wires]
+
+
+def CalculateManhattan(point):
+  return sum(map(abs, point))
+
+
+def GetWirePath(wire):
+  x = 0
+  y = 0
+  path = {}
+  i = 0
+  for step in wire:
+    direction = step[0]
+    length = int(step[1:])
+    for _ in range(length):
+      i += 1
+      if direction == 'L':
+        x -= 1
+      elif direction == 'R':
+        x += 1
+      elif direction == 'U':
+        y += 1
+      elif direction == 'D':
+        y -= 1
+      else:
+        print("Invalid direction: " + direction)
+      path[x, y] = i
+  return path
+
+
+
+def FindClosestIntersection():
+  wires = GetWireInputs()
+  paths = [GetWirePath(wire) for wire in wires]
+  intersections = set(paths[0])
+  for path in paths[1:]:
+    intersections &= set(path)
+
+  distances = {
+    CalculateManhattan(point): paths[0][point] + paths[1][point]
+    for point in intersections
+  }
+
+  return [min(distances.keys()), min(distances.values())]
+
+
+
 def main():
-  print(FindNounAndVerb(19690720))
+  print(FindClosestIntersection())
 
 
 if __name__ == "__main__":
